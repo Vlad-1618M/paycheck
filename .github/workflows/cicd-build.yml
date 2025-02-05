@@ -1,0 +1,36 @@
+name: Build PayCheck Docker Image
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (for cross-platform builds)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Make `env_build/build_docker.sh` Executable
+        run: chmod u+x env_build/build_docker.sh
+
+      - name: Build PayCheck Docker Image Using `env_build/build_docker.sh`
+        run: |
+          bash env_build/build_docker.sh ${{ matrix.arch }}
