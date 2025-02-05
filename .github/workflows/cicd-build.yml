@@ -3,12 +3,12 @@ name: Build PayCheck Docker Image
 on:
   push:
     branches:
-      - main
-      - dev
+      - v.tools_main
+      - '**'
   pull_request:
     branches:
-      - main
-      - dev
+      - v.tools_main
+      - '**'
 
 jobs:
   build:
