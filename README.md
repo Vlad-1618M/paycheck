@@ -31,33 +31,62 @@ Side Note: You may also refer to an alternative [tax-rates-notes](notes/state_pe
 >- Containerized execution as `py venev` replacemnt using [Docker-Support](env_build/setup.Dockerfile): <br>
 ---
 
-## Repository Structure:
+## Repository Container Structure:
 ```bash
+/paycheck# ls -als
+total 84
+8 drwxr-xr-x 1 root root 4096 Feb  5 04:21 .
+4 drwxr-xr-x 1 root root 4096 Feb  5 04:19 ..
+4 drwxr-xr-x 7 root root 4096 Feb  5 00:04 .git
+4 drwxr-xr-x 3 root root 4096 Feb  4 23:14 .github
+4 -rw-r--r-- 1 root root 3526 Feb  4 21:56 .gitignore
+4 -rw-r--r-- 1 root root 1759 Feb  4 21:57 LICENSE
+8 -rw-r--r-- 1 root root 4922 Feb  4 23:07 README.md
+0 -rwx------ 1 root root    0 Feb  4 21:57 __init__.py
+4 drwx------ 2 root root 4096 Feb  4 21:57 configs
+4 drwx------ 2 root root 4096 Feb  4 21:58 deps
+4 drwxr-xr-x 2 root root 4096 Feb  5 04:07 env_build
+8 drwx------ 1 root root 4096 Feb  5 04:22 modules
+4 drwxr-xr-x 2 root root 4096 Feb  4 21:58 notes
+4 drwxr-xr-x 2 root root 4096 Feb  4 21:58 output_screenshots
+4 -rw-r--r-- 1 root root  714 Feb  4 21:59 pytest.ini
+8 drwx------ 1 root root 4096 Feb  5 04:22 src
+8 drwxr-xr-x 1 root root 4096 Feb  5 04:22 tests
+/paycheck# tree .
+
 |-- LICENSE
 |-- README.md
 |-- __init__.py
 |-- configs
-|   -- tax_rates.yml
+|   `-- tax_rates.yml
 |-- deps
-|   -- requirements.txt
+|   `-- requirements.txt
 |-- env_build
-|   |-- image_version_control.sh
+|   |-- build_docker.sh
+|   |-- image_digests.ini
 |   |-- setup.Dockerfile
-|   |-- ubu_digest
-|        -- amd64_digest.json
-|        -- arm64_digest.json
+|   `-- setup.Dockerfile.bak
 |-- modules
-|    -- data_mapping.py
-|    -- lib_check.py
+|   |-- data_mapping.py
+|   `-- lib_check.py
 |-- notes
-|   -- state_per_county_tax_rates.yml
+|   `-- state_per_county_tax_rates.yml
+|-- output_screenshots
+|   |-- all_states.png
+|   |-- group_of_states.png
+|   |-- one_state.png
+|   |-- pytest_cases.png
+|   `-- pytests_all.png
 |-- pytest.ini
 |-- src
-|    -- math_check.py
-|    -- paycheck_calculator.py
-|-- tests
-     -- conftest.py
-     -- test_paycheck.py
+|   |-- math_check.py
+|   `-- paycheck_calculator.py
+`-- tests
+    |-- conftest.py
+    `-- test_paycheck.py
+
+9 directories, 22 files
+/paycheck#
 ```
 
 ## Dependencies:
@@ -84,15 +113,29 @@ Side Note: You may also refer to an alternative [tax-rates-notes](notes/state_pe
 git clone https://github.com/Vlad-1618M/paycheck.git
 cd paycheck
 ```
->- Run [Docker](env_build/setup.Dockerfile) build for container image setup: 
+### Option 1: <br> Build Using build_docker.sh [ Recommended ]
+>- Run [build_docker.sh](./env_build/build_docker.sh) script | follow user prompts 
+
+![Setup Output](output_screenshots/env_setup.png)
+
+### Option 2: <br> Manual Build Without [build_docker.sh](./env_build/build_docker.sh)
+If you prefer to build the container manually: <br>
+>- Step 1. Export Architecture-Specific Digest
 ```bash
-docker build -t 'name' --no-cache --progress=plain -f env_build/setup.Dockerfile .
+    export ARCH=arm64  # ... for macOS:
+    export ARCH=amd64  # ... for Linux or != macOS:
+    export DIGEST=$(awk -F ' = ' "/$ARCH/ {print \$2}" env_build/image_digests.ini)
+    echo "Using Digest: $DIGEST"
 ```
->- shell in container: 
+>- Step 2️. Build Container:
 ```bash
-docker run -it 'name' bash
+docker build --build-arg DIGEST=$DIGEST -t paycheck:$ARCH --no-cache --progress=plain -f env_build/setup.Dockerfile .
 ```
->- Run Paycheck Calculator and follow user prompts:
+>- Step 3. Run Container Image:
+```bash
+docker run -it paycheck:$ARCH bash
+```
+>- Step 4 Run Paycheck Calculator and follow user prompts:
 ```bash
 python src/paycheck_calculator.py
 ```
