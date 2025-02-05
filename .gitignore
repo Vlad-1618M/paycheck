@@ -1,3 +1,13 @@
+# Ignore macOS system files
+.DS_Store
+.logs
+.coverage
+.benchmarks
+
+# Ignore Python bytecode cache
+*.pyc
+*.pyo
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

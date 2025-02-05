@@ -1,0 +1,70 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  schedule:
+    - cron: '0 2 * * *'  # ...2 AM UTC:
+
+jobs:
+  build-day:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (for cross-platform builds)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract Digest for Architecture
+        run: |
+          DIGEST=$(jq -r ".manifests[\"${{ matrix.arch }}\"][\"digest\"]" env_build/image_lock.json)
+          echo "Using digest: $DIGEST"
+          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+
+      - name: Build PayCheck Docker Image (Day Job)
+        run: |
+          docker build --build-arg ARCH=${{ matrix.arch }} --build-arg DIGEST=$DIGEST -t paycheck:${{ matrix.arch }} -f env_build/setup.Dockerfile .
+
+  build-night:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (for cross-platform builds)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract Digest for Architecture
+        run: |
+          DIGEST=$(jq -r ".manifests[\"${{ matrix.arch }}\"][\"digest\"]" env_build/image_lock.json)
+          echo "Using digest: $DIGEST"
+          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+
+      - name: Build PayCheck Docker Image (Nightly Job)
+        run: |
+          docker build --build-arg ARCH=${{ matrix.arch }} --build-arg DIGEST=$DIGEST -t paycheck:${{ matrix.arch }} -f env_build/setup.Dockerfile .

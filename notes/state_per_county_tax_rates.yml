@@ -1,0 +1,89 @@
+local_tax_rates:
+  AL:
+    jefferson_county:
+      "birmingham": 0.01
+      "hoover": 0.0085
+    mobile_county:
+      "mobile": 0.01
+      "prichard": 0.0075
+    madison_county:
+      "huntsville": 0.007
+      "madison": 0.006
+    "state": 0.05
+  CA:
+    los_angeles_county:
+      "los_angeles": 0.093
+      "santa_monica": 0.1025
+      "beverly_hills": 0.105
+    orange_county:
+      "anaheim": 0.0825
+      "irvine": 0.085
+      "fullerton": 0.084
+    san_diego_county:
+      "san_diego": 0.0775
+      "chula_vista": 0.0785
+      "escondido": 0.079
+    "state": 0.0725
+  IL:
+    cook_county:
+      "chicago": 0.1025
+      "evanston": 0.1025
+      "oak_park": 0.0975
+    lake_county:
+      "waukegan": 0.0875
+      "gurnee": 0.085
+      "libertyville": 0.084
+    dupage_county:
+      "naperville": 0.082
+      "wheaton": 0.081
+    "state": 0.0495
+  NY:
+    new_york_county:
+      "manhattan": 0.038
+    kings_county:
+      "brooklyn": 0.038
+      "williamsburg": 0.038
+    queens_county:
+      "queens": 0.038
+      "flushing": 0.038
+    bronx_county:
+      "bronx": 0.038
+    richmond_county:
+      "staten_island": 0.038
+    "state": 0.0645
+  TX:
+    harris_county:
+      "houston": 0.0825
+      "pasadena": 0.081
+      "baytown": 0.082
+    dallas_county:
+      "dallas": 0.0825
+      "garland": 0.08
+      "irving": 0.081
+    travis_county:
+      "austin": 0.0825
+      "pflugerville": 0.082
+    "state": 0.0
+  FL:
+    miami_dade_county:
+      "miami": 0.01
+      "hialeah": 0.01
+      "miami_beach": 0.011
+    orange_county:
+      "orlando": 0.0675
+      "winter_park": 0.065
+    hillsborough_county:
+      "tampa": 0.075
+      "plant_city": 0.074
+    "state": 0.0
+  OH:
+    cuyahoga_county:
+      "cleveland": 0.02
+      "parma": 0.0185
+    franklin_county:
+      "columbus": 0.0175
+      "westerville": 0.016
+    hamilton_county:
+      "cincinnati": 0.017
+      "norwood": 0.0165
+    "state": 0.048
