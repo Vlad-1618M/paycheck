@@ -3,6 +3,7 @@
 .logs
 .coverage
 .benchmarks
+env_build/setup.Dockerfile.tmp
 
 # Ignore Python bytecode cache
 *.pyc

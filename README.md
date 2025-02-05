@@ -21,17 +21,17 @@ Side Note: You may also refer to an alternative [tax-rates-notes](notes/state_pe
 ---
 # Features:
 >- Supports `federal` and `state` income tax calculations:<br>
->- Configurable tax rates via [tax-rates](configs/tax_rates.yml) files: <br>
->- Supports different pay periods:<br>
+>- Configurable tax rates via [.yml](configs/tax_rates.yml) config: <br>
+>- Resulsts are the following pay periods:<br>
     `hourly` <br>
     `weekly` <br>
     `biweekly` <br>
     `semi_monthly` <br>
 >- Unit [pytest](tests/test_paycheck.py) included: <br>
->- Containerized execution as `py venev` replacemnt using [Docker-Support](env_build/setup.Dockerfile): <br>
+>- Run containerized code as `pyvenv` alternative using [Docker](env_build/setup.Dockerfile): <br>
 ---
 
-## Repository Container Structure:
+### Repository Container Structure:
 ```bash
 /paycheck# ls -als
 total 84
@@ -52,8 +52,10 @@ total 84
 4 -rw-r--r-- 1 root root  714 Feb  4 21:59 pytest.ini
 8 drwx------ 1 root root 4096 Feb  5 04:22 src
 8 drwxr-xr-x 1 root root 4096 Feb  5 04:22 tests
+```
+### Container FS Tree:
+```bash
 /paycheck# tree .
-
 |-- LICENSE
 |-- README.md
 |-- __init__.py
@@ -88,8 +90,9 @@ total 84
 9 directories, 22 files
 /paycheck#
 ```
-
 ## Dependencies:
+#### Python & Required Libraries:
+>- Written and tested on `Python` `3.13`, also compatible with lower versions if needed [e.g., `~=3.10`] assuming deps are installed: <br>
 >- Python [requirements](deps/requirements.txt) libs: 
 ```bash
     coverage~=7.6.10 
@@ -106,36 +109,102 @@ total 84
     uncompyle6~=3.9.2
     rich~=13.9.4
 ```
->- Docker Engine:
+#### Containerized Execution by Docker Engine:
+>- Docker Engine needs to be installed and running prior the Docker-based setup:
+>- build on `Docker version 27.4.0`
+```bash
+docker --version
+```
+```bash
+docker info
+```
 
-## Setup & Install:
+# Setup & Install:
+>- Clone repo: 
 ```bash
 git clone https://github.com/Vlad-1618M/paycheck.git
 cd paycheck
 ```
-### Option 1: <br> Build Using build_docker.sh [ Recommended ]
->- Run [build_docker.sh](./env_build/build_docker.sh) script | follow user prompts 
+### <span style="color:magenta;">Option 1:</span> Build Using `build_docker.sh` [ Recommended ]
+>- <span style="color:magenta;"> Run [build_docker.sh](./env_build/build_docker.sh) </span> script | follow user prompts:
 
 ![Setup Output](output_screenshots/env_setup.png)
+>- <span style="color:magenta;"> bash</span> in to your <span style="color:magenta;">tagged</span> container image:
+```bash
+docker images -a
+REPOSITORY   TAG       IMAGE ID       CREATED              SIZE
+paycheck     arm64        x           About a minute ago   657MB
+```
+```bash
+docker run -it paycheck:arm64 bash
+```
+---
+### <span style="color:yellow;"> Option 2:</span> Manual Build Without [build_docker.sh](./env_build/build_docker.sh) script:
+>- NOTE:<br> <span style="color:yellow;"> docker build </span> doesn’t support direct substitution in the <span style="color:yellow;"> FROM </span> statement without pre-processing the Dockerfile: <br>
+Since this project is desinged to support both <span style="color:yellow;">linux</span> and <span style="color:yellow;">macOS</span> architecture by tagging <span style="color:yellow;">arm</span> or <span style="color:yellow;">amd</span> during build stages using single <span style="color:yellow;">Dockerfile</span> instead of one for each, the <span style="color:yellow;">build_docker.sh</span> shell script automation hack was writtent as a work around for Docker limitations, which now helps to retain single Dockerfile to support `>1` architecture design: `-->` see <span style="color:magenta;">Option 1</span> above:
+#### If you prefer to build <span style="color:yellow;"> container manually</span>: without existing shell hack, follow the steps below:<br>
+>- Step <span style="color:yellow;">1</span>. Export Architecture-Specific Digest
+```bash
+export ARCH=arm64  # ... for macOS:
+export DIGEST=$(awk -F ' = ' "/$ARCH/ {print \$2}" env_build/image_digests.ini)
+echo -e "\tArchitecture Digest in use:\t --> [ $DIGEST ]"
+```
+```bash
+export ARCH=amd64  # ... for Linux or != macOS:
+export DIGEST=$(awk -F ' = ' "/$ARCH/ {print \$2}" env_build/image_digests.ini)
+echo -e "\tArchitecture Digest in use:\t --> [ $DIGEST ]"
+```
+>- Step <span style="color:yellow;">2</span>. Replace the PLACEHOLDER_DIGEST variable in Dockerfile dynamically:
+```bash
+sed "s|PLACEHOLDER_DIGEST|$DIGEST|g" env_build/setup.Dockerfile > env_build/setup.Dockerfile.tmp
+```
+>- Step <span style="color:yellow;">3</span>. Now you can build using new <span style="color:yellow;">Dockerfile.tmp</span> where Architecture has been correctly configured and <span style="color:yellow;"> docker build </span> is happy:
+```bash
+docker build -t paycheck --no-cache --progress=plain -f env_build/setup.Dockerfile.tmp .
+```
+>- Final <span style="color:yellow;">Step</span>:
+You can now bash in to your container: 
+```bash
+docker images -a
+REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+paycheck     latest      x            18 minutes ago   657MB
+```
+```bash
+docker run -it paycheck bash
+```
+```bash                                                                                                                                                                     took  
+docker images -a
+EPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+paycheck    latest      x            21 minutes ago   657MB
 
-### Option 2: <br> Manual Build Without [build_docker.sh](./env_build/build_docker.sh)
-If you prefer to build the container manually: <br>
->- Step 1. Export Architecture-Specific Digest
-```bash
-    export ARCH=arm64  # ... for macOS:
-    export ARCH=amd64  # ... for Linux or != macOS:
-    export DIGEST=$(awk -F ' = ' "/$ARCH/ {print \$2}" env_build/image_digests.ini)
-    echo "Using Digest: $DIGEST"
+docker run -it paycheck bash
+
+root@:/paycheck# ls -asl
+total 136
+ 4 drwxr-xr-x 1 root root  4096 Feb  5 17:45 .
+ 4 drwxr-xr-x 1 root root  4096 Feb  5 18:05 ..
+ 4 drwxr-xr-x 2 root root  4096 Feb  5 17:45 .benchmarks
+52 -rw-r--r-- 1 root root 53248 Feb  5 17:45 .coverage
+ 4 drwxr-xr-x 7 root root  4096 Feb  5 17:06 .git
+ 4 drwxr-xr-x 3 root root  4096 Feb  4 23:14 .github
+ 4 -rw-r--r-- 1 root root  3526 Feb  4 21:56 .gitignore
+ 4 drwxr-xr-x 3 root root  4096 Feb  5 17:45 .pytest_cache
+ 4 -rw-r--r-- 1 root root  1759 Feb  4 21:57 LICENSE
+12 -rw-r--r-- 1 root root  8259 Feb  5 17:42 README.md
+ 0 -rwx------ 1 root root     0 Feb  4 21:57 __init__.py
+ 4 drwxr-xr-x 2 root root  4096 Feb  5 17:45 __pycache__
+ 4 drwx------ 2 root root  4096 Feb  4 21:57 configs
+ 4 drwx------ 2 root root  4096 Feb  4 21:58 deps
+ 4 drwxr-xr-x 2 root root  4096 Feb  5 17:44 env_build
+ 4 drwx------ 3 root root  4096 Feb  4 21:58 modules
+ 4 drwxr-xr-x 2 root root  4096 Feb  4 21:58 notes
+ 4 drwxr-xr-x 2 root root  4096 Feb  5 04:34 output_screenshots
+ 4 -rw-r--r-- 1 root root   714 Feb  4 21:59 pytest.ini
+ 4 drwx------ 1 root root  4096 Feb  4 21:59 src
+ 4 drwxr-xr-x 1 root root  4096 Feb  4 21:59 tests
+root@:/paycheck#
 ```
->- Step 2️. Build Container:
-```bash
-docker build --build-arg DIGEST=$DIGEST -t paycheck:$ARCH --no-cache --progress=plain -f env_build/setup.Dockerfile .
-```
->- Step 3. Run Container Image:
-```bash
-docker run -it paycheck:$ARCH bash
-```
->- Step 4 Run Paycheck Calculator and follow user prompts:
+>- Run Paycheck Calculator and follow user prompts:
 ```bash
 python src/paycheck_calculator.py
 ```
